@@ -8,6 +8,19 @@ from colors import Colors
 
 
 class OutputFrame(ctk.CTkFrame):
+    """
+    左侧输出框
+    """
+    list_color_map = {
+        0: Colors.teal.hex_tuple,
+        1: Colors.red.hex_tuple,
+        2: Colors.yellow.hex_tuple,
+        3: Colors.green.hex_tuple,
+        4: Colors.teal.hex_tuple,
+        5: Colors.blue.hex_tuple,
+        6: Colors.mauve.hex_tuple,
+    }
+
     def __init__(self, parent):
         super().__init__(parent, fg_color=Colors.surface0.hex_tuple)
         self.parent = parent
@@ -33,11 +46,11 @@ class OutputFrame(ctk.CTkFrame):
         self.label_list: list[ctk.CTkLabel] = []
         self.last_index = 0
 
-    def update_path(self, path: str, item_list: list[tuple[str, bool]]):
+    def update_list(self, path: str, item_list: list[tuple[str, int]]):
         """
         更新路径栏和列表框
-        :param path: 新路径字符串
-        :param item_list: 列表框内容 [(文件名, 是否是目录), ...]
+        :param path: 路径栏字符串
+        :param item_list: 列表内容 [(列表项, 颜色ID), ...]
         :return:
         """
         self.path_label.configure(text=path)
@@ -48,8 +61,7 @@ class OutputFrame(ctk.CTkFrame):
         self.label_list.clear()
 
         for item, is_dir in item_list:
-            item_label = ctk.CTkLabel(self.list_frame, text=item,
-                                      text_color=Colors.teal.hex_tuple if is_dir else Colors.blue.hex_tuple,
+            item_label = ctk.CTkLabel(self.list_frame, text=item, text_color=self.list_color_map[is_dir],
                                       fg_color=Colors.surface2.hex_tuple, height=10, anchor="w")
             self.label_list.append(item_label)
             item_label.pack(padx=5, pady=2, fill="x")

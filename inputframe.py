@@ -9,6 +9,10 @@ from colors import Colors
 
 
 class InputFrame(ctk.CTkFrame):
+    """
+    右侧输入框
+    """
+
     def __init__(self, parent):
         super().__init__(parent, fg_color=Colors.surface0.hex_tuple)
         self.parent = parent

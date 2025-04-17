@@ -9,7 +9,8 @@ from data import *
 
 
 class Manager:
-    """逻辑处理类
+    """
+    逻辑处理类
     """
 
     def __init__(self):
@@ -44,7 +45,7 @@ class Manager:
 
         self.file_path = Path.home()
         self.dir_items: list[Path] = []
-        self.path_update_callback = None
+        self.list_update_callback = None
 
         self.info_list = deque(maxlen=20)
         self.info_update_callback = None
@@ -56,6 +57,8 @@ class Manager:
         self.command_map = {
             "cd": lambda path: self.change_path(path),
         }
+
+        self.tab = "文件系统"
 
     def add_info(self, info: str):
         """
@@ -89,12 +92,12 @@ class Manager:
         self.selected_index = 0
         # 调用回调函数
         item_list = [(item.name, item.is_dir()) for item in self.dir_items]
-        self.path_update_callback(str(self.file_path), item_list)
+        self.list_update_callback(str(self.file_path), item_list)
         self.preview_update_callback(self.get_preview_content())
 
     def select_previous(self, _event=None):
         """
-        选择上一个文件
+        选择上一项
         :param _event: 事件对象
         """
         if len(self.dir_items) == 0:
@@ -109,7 +112,7 @@ class Manager:
 
     def select_next(self, _event=None):
         """
-        选择下一个文件
+        选择下一项
         :param _event: 事件对象
         """
         if len(self.dir_items) == 0:
@@ -158,3 +161,11 @@ class Manager:
                 self.add_info(f"参数错误: {e}")
         else:
             self.add_info("未知命令")
+
+    def change_tab(self, tab_name: str):
+        """
+        切换标签页
+        :param tab_name: 标签页名称
+        :return:
+        """
+        self.tab = tab_name

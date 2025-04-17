@@ -10,6 +10,7 @@ class TitleBar(ctk.CTkFrame):
     """
     自定义标题栏
     """
+
     def __init__(self, parent):
         super().__init__(parent, fg_color=Colors.surface0.hex_tuple, corner_radius=0)
         self.parent = parent

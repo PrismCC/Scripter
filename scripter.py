@@ -59,7 +59,7 @@ class Scripter(ctk.CTk):
 
         # 回调函数绑定
         self.right_frame.get_command_callback = self.manager.parse_command
-        self.manager.path_update_callback = self.left_frame.update_path
+        self.manager.list_update_callback = self.left_frame.update_list
         self.manager.preview_update_callback = self.left_frame.update_preview
         self.manager.info_update_callback = self.right_frame.update_info
         self.manager.roll_bar_callback = self.left_frame.roll_bar
@@ -107,4 +107,4 @@ class Scripter(ctk.CTk):
         :param tab_name: 标签页名称
         :return:
         """
-        pass
+        self.manager.change_tab(tab_name)
