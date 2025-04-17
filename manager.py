@@ -18,6 +18,21 @@ class Manager:
         self.script_path = Path("./data/scripts.toml")
         self.shortcut_path = Path("./data/shortcuts.toml")
 
+        def ensure_file(path: Path):
+            """
+            确保文件存在，如果不存在则创建
+            :param path: 文件路径
+            :return:
+            """
+            if not path.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+
+        ensure_file(self.symlink_path)
+        ensure_file(self.url_path)
+        ensure_file(self.script_path)
+        ensure_file(self.shortcut_path)
+
         with self.symlink_path.open("rb") as f:
             self.symlink_dict = {k: Symlink(**v) for k, v in tomllib.load(f).items()}
         with self.url_path.open("rb") as f:
