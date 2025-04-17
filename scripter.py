@@ -1,4 +1,6 @@
-from pathlib import Path
+"""
+scripter.py
+"""
 
 import customtkinter as ctk
 import win32con
@@ -6,11 +8,16 @@ import win32gui
 
 from colors import Colors
 from inputframe import InputFrame
+from manager import Manager
 from outputframe import OutputFrame
 from titlebar import TitleBar
 
 
 class Scripter(ctk.CTk):
+    """
+    Scripter 主窗口类
+    """
+
     def __init__(self):
         super().__init__()
         self.x = None
@@ -32,73 +39,72 @@ class Scripter(ctk.CTk):
         self.grid_rowconfigure(1, weight=19)
         self.columnconfigure((0, 1), weight=1)
 
-        # top frame
+        # 标题栏
         self.top_frame = TitleBar(self)
         self.top_frame.grid(row=0, column=0, padx=0, pady=0, columnspan=2, sticky="nsew")
         self.top_frame.bind("<ButtonPress-1>", self.start_move)
         self.top_frame.bind("<ButtonRelease-1>", self.stop_move)
         self.top_frame.bind("<B1-Motion>", self.do_move)
 
-        # left scrollable frame
+        # 左侧输出框
         self.left_frame = OutputFrame(self)
         self.left_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-        # right frame
+        # 右侧输入框
         self.right_frame = InputFrame(self)
         self.right_frame.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
         # 属性变量
-        self.path = Path.home()
-        self.left_frame.update_path(self.path)
-        self.func_map = {
-            "cd": self.change_directory,
-        }
+        self.manager = Manager()
+
+        # 回调函数绑定
+        self.right_frame.get_command_callback = self.manager.parse_command
+        self.manager.path_update_callback = self.left_frame.update_path
+        self.manager.preview_update_callback = self.left_frame.update_preview
+        self.manager.info_update_callback = self.right_frame.update_info
+        self.manager.roll_bar_callback = self.left_frame.roll_bar
 
         # 按键绑定
-        self.bind_all("<Up>", self.left_frame.select_previous)
-        self.bind_all("<Down>", self.left_frame.select_next)
+        self.bind_all("<Up>", self.manager.select_previous)
+        self.bind_all("<Down>", self.manager.select_next)
         self.bind("<Alt-Tab>", lambda e: self.lift())
         self.bind("<Escape>", lambda e: self.destroy())
 
+        # 初始化列表框
+        self.manager.change_path(".")
+
     def start_move(self, event):
+        """
+        开始移动窗口
+        :param event: 鼠标事件
+        :return:
+        """
         self.x = event.x
         self.y = event.y
 
     def stop_move(self, _event):
+        """
+        停止移动窗口
+        :param _event: 鼠标事件
+        :return:
+        """
         self.x = None
         self.y = None
 
     def do_move(self, event):
+        """
+        移动窗口
+        :param event: 鼠标事件
+        :return:
+        """
         x = event.x - self.x
         y = event.y - self.y
         self.geometry(f"+{self.winfo_x() + x}+{self.winfo_y() + y}")
 
     def change_tab(self, tab_name: str):
+        """
+        切换标签页
+        :param tab_name: 标签页名称
+        :return:
+        """
         pass
-
-    def parse_command(self, command: str):
-        command = command.strip().split(" ")
-        func = command[0]
-        args = command[1:]
-        if func in self.func_map:
-            try:
-                self.func_map[func](*args)
-            except TypeError as e:
-                self.add_info(f"参数错误: {e}")
-        else:
-            self.add_info("未知命令")
-
-    def change_directory(self, path: str):
-        path = Path(path)
-        # 如果是相对路径，转换为绝对路径
-        if not path.is_absolute():
-            path = self.path / path
-            path = path.resolve(strict=False)
-        if path.exists() and path.is_dir():
-            self.path = path
-            self.left_frame.update_path(self.path)
-        else:
-            self.add_info("路径不存在或不是目录")
-
-    def add_info(self, info: str):
-        self.right_frame.add_info(info)

@@ -1,7 +1,13 @@
+"""
+main.py
+"""
 from scripter import *
 
 
 def main():
+    """
+    主函数
+    """
     app = Scripter()
     app.mainloop()
 

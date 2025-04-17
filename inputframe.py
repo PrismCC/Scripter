@@ -1,3 +1,6 @@
+"""
+inputframe.py
+"""
 from collections import deque
 
 import customtkinter as ctk
@@ -15,7 +18,7 @@ class InputFrame(ctk.CTkFrame):
         self.grid_rowconfigure(2, weight=3)
         self.grid_rowconfigure(3, weight=5)
 
-        self.tab_button = ctk.CTkSegmentedButton(self, values=["文件系统", "路径", "脚本", "链接", "快捷键"],
+        self.tab_button = ctk.CTkSegmentedButton(self, values=["文件系统", "链接", "脚本", "网页", "快捷键"],
                                                  fg_color=Colors.surface0.hex_tuple, text_color=Colors.text.hex_tuple,
                                                  selected_color=Colors.base.hex_tuple,
                                                  selected_hover_color=Colors.mantle.hex_tuple,
@@ -37,21 +40,32 @@ class InputFrame(ctk.CTkFrame):
         self.control_frame.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 
         # 提示信息
-        self.info_label = ctk.CTkTextbox(self, fg_color=Colors.surface1.hex_tuple, text_color=Colors.text.hex_tuple,
-                                         state="disabled", height=300)
-        self.info_label.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
-        self.info_list = deque(maxlen=20)
+        self.info_box = ctk.CTkTextbox(self, fg_color=Colors.surface1.hex_tuple, text_color=Colors.text.hex_tuple,
+                                       state="disabled", height=300)
+        self.info_box.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+
+        # 属性变量
+        self.get_command_callback = None
 
     def get_command(self, _event=None):
+        """
+        获取命令栏输入的命令
+        :param _event: 事件对象
+        :return:
+        """
         command = self.command_entry.get()
         if command:
-            self.parent.parse_command(command)
+            self.get_command_callback(command)
         self.command_entry.delete(0, ctk.END)
 
-    def add_info(self, info: str):
-        self.info_list.append(info)
-        self.info_label.configure(state="normal")
-        self.info_label.delete("1.0", ctk.END)
-        for item in self.info_list:
-            self.info_label.insert(ctk.END, item + "\n")
-        self.info_label.configure(state="disabled")
+    def update_info(self, info_list: deque[str]):
+        """
+        更新提示信息
+        :param info_list: 提示信息列表
+        :return:
+        """
+        self.info_box.configure(state="normal")
+        self.info_box.delete("1.0", ctk.END)
+        for line in info_list:
+            self.info_box.insert(ctk.END, line + "\n")
+        self.info_box.configure(state="disabled")

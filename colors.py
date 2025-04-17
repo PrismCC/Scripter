@@ -1,8 +1,14 @@
+"""
+colors.py
+"""
 from catppuccin import PALETTE
 from catppuccin.models import RGB
 
 
 class Colors:
+    """
+    以Catppuccin库为基础的颜色类
+    """
     rosewater = None
     flamingo = None
     pink = None
@@ -40,23 +46,43 @@ class Colors:
         self.dark_b = dark_rgb.b
 
     @property
-    def light_rgb(self):
+    def light_rgb(self) -> tuple[int, int, int]:
+        """
+        获取浅色模式的RGB值
+        :return: 浅色模式的RGB值
+        """
         return self.light_r, self.light_g, self.light_b
 
     @property
-    def dark_rgb(self):
+    def dark_rgb(self) -> tuple[int, int, int]:
+        """
+        获取深色模式的RGB值
+        :return: 深色模式的RGB值
+        """
         return self.dark_r, self.dark_g, self.dark_b
 
     @property
-    def light_hex(self):
+    def light_hex(self) -> str:
+        """
+        获取浅色模式的十六进制颜色字符串
+        :return: 浅色模式的十六进制颜色字符串
+        """
         return f"#{self.light_r:02x}{self.light_g:02x}{self.light_b:02x}"
 
     @property
-    def dark_hex(self):
+    def dark_hex(self) -> str:
+        """
+        获取深色模式的十六进制颜色字符串
+        :return: 深色模式的十六进制颜色字符串
+        """
         return f"#{self.dark_r:02x}{self.dark_g:02x}{self.dark_b:02x}"
 
     @property
-    def hex_tuple(self):
+    def hex_tuple(self) -> tuple[str, str]:
+        """
+        获取浅色模式和深色模式的十六进制颜色字符串元组
+        :return: (浅色模式的十六进制颜色字符串, 深色模式的十六进制颜色字符串)
+        """
         return self.light_hex, self.dark_hex
 
 
