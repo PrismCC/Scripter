@@ -1,6 +1,8 @@
 """
 manager.py
 """
+import difflib
+import os
 import tomllib
 from collections import deque
 from pathlib import Path
@@ -58,6 +60,9 @@ class Manager:
 
         self.command_map = {
             "cd": lambda path: self.change_path(path),
+            "lk": lambda name: self.jump_link(name),
+            "sc": lambda name: self.run_script(name),
+            "wb": lambda name: self.open_url(name),
         }
 
         self.tab = "文件系统"
@@ -98,6 +103,46 @@ class Manager:
             item_list = [(item.name, 4 if item.is_dir() else 3) for item in self.dir_items]
             self.list_update_callback(str(self.file_path), item_list)
             self.preview_update_callback(self.get_preview_content())
+
+    def jump_link(self, link_name: str):
+        """
+        将当前路径跳转到链接
+        :param link_name: 链接名称
+        """
+        if link_name in self.symlink_dict:
+            link = self.symlink_dict[link_name]
+            self.change_path(link.path)
+        else:
+            self.add_info("链接不存在")
+
+    def run_script(self, script_name: str):
+        """
+        运行脚本
+        :param script_name: 脚本名称
+        """
+        if script_name in self.script_dict:
+            script = self.script_dict[script_name]
+            path = Path(script.path)
+            if path.exists():
+                os.system(str(path))
+                self.add_info(f"脚本 {script_name} 已运行")
+            else:
+                self.add_info("脚本文件缺失")
+        else:
+            self.add_info("脚本不存在")
+
+    def open_url(self, url_name: str):
+        """
+        打开网页
+        :param url_name: 网页名称
+        """
+        if url_name in self.url_dict:
+            url = self.url_dict[url_name]
+            for link in url.urls:
+                os.system(f"start {link}")
+                self.add_info(f"网页 {link} 已打开")
+        else:
+            self.add_info("网页不存在")
 
     def select_previous(self, _event=None):
         """
@@ -225,3 +270,30 @@ class Manager:
 
         # 更新预览框
         self.preview_update_callback(self.get_preview_content())
+
+    def completion(self, command: str) -> str:
+        """
+        补全命令
+        :param command: 命令字符串
+        :return: 加上最可能补全后的命令
+        """
+        command_l = command.strip().split(" ")
+        if len(command_l) < 2:
+            return command
+        func = command_l[0]
+        arg = command_l[1]
+        if func == "cd":
+            candidates = [item.name for item in self.dir_items]
+        elif func == "lk":
+            candidates = self.symlink_dict.get_key_list()
+        elif func == "sc":
+            candidates = self.script_dict.get_key_list()
+        elif func == "wb":
+            candidates = self.url_dict.get_key_list()
+        else:
+            return command
+        match_list = difflib.get_close_matches(arg, candidates)
+        if match_list:
+            return f"{func} {match_list[0]}"
+        else:
+            return command

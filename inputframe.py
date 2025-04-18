@@ -48,8 +48,12 @@ class InputFrame(ctk.CTkFrame):
                                        state="disabled", height=300)
         self.info_box.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
 
+        # 按键绑定
+        self.command_entry.bind("<Tab>", lambda e: self.complete_command(e))
+
         # 属性变量
         self.get_command_callback = None
+        self.complete_command_callback = None
 
     def get_command(self, _event=None):
         """
@@ -73,3 +77,14 @@ class InputFrame(ctk.CTkFrame):
         for line in info_list:
             self.info_box.insert(ctk.END, line + "\n")
         self.info_box.configure(state="disabled")
+
+    def complete_command(self, _event=None) -> str:
+        """
+        自动补全命令
+        :return: 事件对象
+        """
+        old_command = self.command_entry.get()
+        self.command_entry.delete(0, ctk.END)
+        new_command = self.complete_command_callback(old_command)
+        self.command_entry.insert(0, new_command)
+        return "break"

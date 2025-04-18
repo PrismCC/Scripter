@@ -59,6 +59,7 @@ class Scripter(ctk.CTk):
 
         # 回调函数绑定
         self.right_frame.get_command_callback = self.manager.parse_command
+        self.right_frame.complete_command_callback = self.manager.completion
         self.manager.list_update_callback = self.left_frame.update_list
         self.manager.preview_update_callback = self.left_frame.update_preview
         self.manager.info_update_callback = self.right_frame.update_info
