@@ -3,6 +3,7 @@ manager.py
 """
 import difflib
 import os
+import subprocess
 import tomllib
 from collections import deque
 from pathlib import Path
@@ -64,6 +65,7 @@ class Manager:
             "sc": lambda name: self.run_script(name),
             "wb": lambda name: self.open_url(name),
             "tab": lambda tab_id: self.switch_tab(tab_id),
+            "run": lambda: self.run(),
         }
 
         self.tab = "文件系统"
@@ -126,7 +128,7 @@ class Manager:
             script = self.script_dict[script_name]
             path = Path(script.path)
             if path.exists():
-                os.system(str(path))
+                subprocess.Popen(script.path, shell=True)
                 self.add_info(f"脚本 {script_name} 已运行")
             else:
                 self.add_info("脚本文件缺失")
@@ -157,6 +159,40 @@ class Manager:
             self.add_info("标签页ID错误")
         else:
             self.switch_tab_callback(tabs[tab_id])
+
+    def run(self):
+        """
+        执行当前所选项
+        :return:
+        """
+        if self.tab == "文件系统":
+            if len(self.dir_items) == 0:
+                return
+            item: Path = self.dir_items[self.selected_index]
+            if item.is_dir():
+                self.change_path(str(item))
+            else:
+                os.startfile(str(item))
+        elif self.tab == "链接":
+            if len(self.symlink_dict) == 0:
+                return
+            item: str = self.symlink_dict.key_of_index(self.selected_index)
+            self.jump_link(item)
+        elif self.tab == "脚本":
+            if len(self.script_dict) == 0:
+                return
+            item: str = self.script_dict.key_of_index(self.selected_index)
+            self.run_script(item)
+        elif self.tab == "网页":
+            if len(self.url_dict) == 0:
+                return
+            item: str = self.url_dict.key_of_index(self.selected_index)
+            self.open_url(item)
+        else:
+            if len(self.shortcut_dict) == 0:
+                return
+            item: str = self.shortcut_dict.value_of_index(self.selected_index).command
+            self.parse_command(item)
 
     def select_previous(self, _event=None):
         """
