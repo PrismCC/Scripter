@@ -63,9 +63,11 @@ class Manager:
             "lk": lambda name: self.jump_link(name),
             "sc": lambda name: self.run_script(name),
             "wb": lambda name: self.open_url(name),
+            "tab": lambda tab_id: self.switch_tab(tab_id),
         }
 
         self.tab = "文件系统"
+        self.switch_tab_callback = None
 
     def add_info(self, info: str):
         """
@@ -143,6 +145,18 @@ class Manager:
                 self.add_info(f"网页 {link} 已打开")
         else:
             self.add_info("网页不存在")
+
+    def switch_tab(self, tab_id: str):
+        """
+        切换标签页
+        :param tab_id: 标签页ID
+        """
+        tabs = ["文件系统", "链接", "脚本", "网页", "快捷键"]
+        tab_id = int(tab_id) - 1
+        if tab_id < 0 or tab_id >= len(tabs):
+            self.add_info("标签页ID错误")
+        else:
+            self.switch_tab_callback(tabs[tab_id])
 
     def select_previous(self, _event=None):
         """
@@ -238,11 +252,15 @@ class Manager:
             except TypeError as e:
                 self.add_info(f"参数错误: {e}")
         else:
-            self.add_info("未知命令")
+            if func in self.shortcut_dict.keys():
+                shortcut = self.shortcut_dict[func]
+                self.parse_command(shortcut.command)
+            else:
+                self.add_info("未知命令")
 
-    def change_tab(self, tab_name: str):
+    def update_tab(self, tab_name: str):
         """
-        切换标签页
+        更新标签页切换后的界面
         :param tab_name: 标签页名称
         :return:
         """

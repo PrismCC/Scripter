@@ -64,6 +64,7 @@ class Scripter(ctk.CTk):
         self.manager.preview_update_callback = self.left_frame.update_preview
         self.manager.info_update_callback = self.right_frame.update_info
         self.manager.roll_bar_callback = self.left_frame.roll_bar
+        self.manager.switch_tab_callback = self.change_tab
 
         # 按键绑定
         self.bind_all("<Up>", self.manager.select_previous)
@@ -114,4 +115,4 @@ class Scripter(ctk.CTk):
         :return:
         """
         self.right_frame.tab_button.set(tab_name)
-        self.manager.change_tab(tab_name)
+        self.manager.update_tab(tab_name)
