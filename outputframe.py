@@ -12,7 +12,7 @@ class OutputFrame(ctk.CTkFrame):
     左侧输出框
     """
     list_color_map = {
-        0: Colors.teal.hex_tuple,
+        0: Colors.text.hex_tuple,
         1: Colors.red.hex_tuple,
         2: Colors.yellow.hex_tuple,
         3: Colors.green.hex_tuple,
