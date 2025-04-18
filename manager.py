@@ -71,6 +71,9 @@ class Manager:
             "add_lk": lambda name, path: self.add_symlink(name, path),
             "add_sc": lambda name, path: self.add_script(name, path),
             "add_wb": lambda name, url: self.add_url(name, url),
+            "del_lk": lambda name: self.del_symlink(name),
+            "del_sc": lambda name: self.del_script(name),
+            "del_wb": lambda name: self.del_url(name),
         }
 
         self.tab = "文件系统"
@@ -120,8 +123,8 @@ class Manager:
         """
         if link_name in self.symlink_dict:
             link = self.symlink_dict[link_name]
-            self.change_path(link.path)
             self.add_info(f"链接 {link_name} 已跳转: {link.path}")
+            self.change_path(link.path)
         else:
             self.add_info("链接不存在")
 
@@ -134,8 +137,8 @@ class Manager:
             script = self.script_dict[script_name]
             path = Path(script.path)
             if path.exists():
-                subprocess.Popen(script.path, shell=True)
                 self.add_info(f"脚本 {script_name} 已运行")
+                subprocess.Popen(script.path, shell=True)
             else:
                 self.add_info("脚本文件缺失")
         else:
@@ -149,8 +152,8 @@ class Manager:
         if url_name in self.url_dict:
             url = self.url_dict[url_name]
             for link in url.urls:
-                os.system(f"start {link}")
                 self.add_info(f"网页 {link} 已打开")
+                os.system(f"start {link}")
         else:
             self.add_info("网页不存在")
 
@@ -243,6 +246,48 @@ class Manager:
         with self.url_path.open("wb") as f:
             tomli_w.dump(toml_data, f)
         self.add_info(f"网页组 {name} 已添加: {url}")
+
+    def del_symlink(self, name: str):
+        """
+        删除链接
+        :param name: 链接名称
+        """
+        if name in self.symlink_dict:
+            del self.symlink_dict[name]
+            toml_data = {k: {"path": v.path} for k, v in self.symlink_dict.items()}
+            with self.symlink_path.open("wb") as f:
+                tomli_w.dump(toml_data, f)
+            self.add_info(f"链接 {name} 已删除")
+        else:
+            self.add_info("链接不存在")
+
+    def del_script(self, name: str):
+        """
+        删除脚本
+        :param name: 脚本名称
+        """
+        if name in self.script_dict:
+            del self.script_dict[name]
+            toml_data = {k: {"path": v.path} for k, v in self.script_dict.items()}
+            with self.script_path.open("wb") as f:
+                tomli_w.dump(toml_data, f)
+            self.add_info(f"脚本 {name} 已删除")
+        else:
+            self.add_info("脚本不存在")
+
+    def del_url(self, name: str):
+        """
+        删除网页组
+        :param name: 网页组名称
+        """
+        if name in self.url_dict:
+            del self.url_dict[name]
+            toml_data = {k: {"urls": v.urls} for k, v in self.url_dict.items()}
+            with self.url_path.open("wb") as f:
+                tomli_w.dump(toml_data, f)
+            self.add_info(f"网页组 {name} 已删除")
+        else:
+            self.add_info("网页组不存在")
 
     def select_previous(self, _event=None):
         """
