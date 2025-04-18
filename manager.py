@@ -8,6 +8,8 @@ import tomllib
 from collections import deque
 from pathlib import Path
 
+import tomli_w
+
 from data import *
 from utils import IndexableDict
 
@@ -66,6 +68,9 @@ class Manager:
             "wb": lambda name: self.open_url(name),
             "tab": lambda tab_id: self.switch_tab(tab_id),
             "run": lambda: self.run(),
+            "add_lk": lambda name, path: self.add_symlink(name, path),
+            "add_sc": lambda name, path: self.add_script(name, path),
+            "add_wb": lambda name, url: self.add_url(name, url),
         }
 
         self.tab = "文件系统"
@@ -116,6 +121,7 @@ class Manager:
         if link_name in self.symlink_dict:
             link = self.symlink_dict[link_name]
             self.change_path(link.path)
+            self.add_info(f"链接 {link_name} 已跳转: {link.path}")
         else:
             self.add_info("链接不存在")
 
@@ -193,6 +199,50 @@ class Manager:
                 return
             item: str = self.shortcut_dict.value_of_index(self.selected_index).command
             self.parse_command(item)
+
+    def add_symlink(self, name: str, path: str):
+        """
+        添加链接
+        :param name: 链接名称
+        :param path: 链接路径
+        """
+        if name in self.symlink_dict:
+            self.add_info(f"链接 {name} 已更新: {path}")
+        else:
+            self.add_info(f"链接 {name} 已添加: {path}")
+        self.symlink_dict[name] = Symlink(path=path)
+        toml_data = {k: {"path": v.path} for k, v in self.symlink_dict.items()}
+        with self.symlink_path.open("wb") as f:
+            tomli_w.dump(toml_data, f)
+
+    def add_script(self, name: str, path: str):
+        """
+        添加脚本
+        :param name: 脚本名称
+        :param path: 脚本路径
+        """
+        if name in self.script_dict:
+            self.add_info(f"脚本 {name} 已更新: {path}")
+        else:
+            self.add_info(f"脚本 {name} 已添加: {path}")
+        self.script_dict[name] = Script(path=path)
+        toml_data = {k: {"path": v.path} for k, v in self.script_dict.items()}
+        with self.script_path.open("wb") as f:
+            tomli_w.dump(toml_data, f)
+
+    def add_url(self, name: str, url: str):
+        """
+        添加网页
+        :param name: 网页名称
+        :param url: 网页链接
+        """
+        if name not in self.url_dict:
+            self.url_dict[name] = Url(urls=[])
+        self.url_dict[name].urls.append(url)
+        toml_data = {k: {"urls": v.urls} for k, v in self.url_dict.items()}
+        with self.url_path.open("wb") as f:
+            tomli_w.dump(toml_data, f)
+        self.add_info(f"网页组 {name} 已添加: {url}")
 
     def select_previous(self, _event=None):
         """

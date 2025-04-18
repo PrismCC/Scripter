@@ -59,3 +59,10 @@ class IndexableDict(UserDict):
         :return: 值列表
         """
         return self._values
+
+    def get_dict(self):
+        """
+        获取字典
+        :return: 字典
+        """
+        return self.data
