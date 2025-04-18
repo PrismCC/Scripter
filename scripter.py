@@ -69,6 +69,11 @@ class Scripter(ctk.CTk):
         self.bind_all("<Down>", self.manager.select_next)
         self.bind("<Alt-Tab>", lambda e: self.lift())
         self.bind("<Escape>", lambda e: self.destroy())
+        self.bind("<F1>", lambda e: self.change_tab("文件系统"))
+        self.bind("<F2>", lambda e: self.change_tab("链接"))
+        self.bind("<F3>", lambda e: self.change_tab("脚本"))
+        self.bind("<F4>", lambda e: self.change_tab("网页"))
+        self.bind("<F5>", lambda e: self.change_tab("快捷键"))
 
         # 初始化列表框
         self.manager.change_path(".")
@@ -107,4 +112,5 @@ class Scripter(ctk.CTk):
         :param tab_name: 标签页名称
         :return:
         """
+        self.right_frame.tab_button.set(tab_name)
         self.manager.change_tab(tab_name)
